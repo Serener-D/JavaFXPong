@@ -2,6 +2,8 @@ package com.github.serenerd.hellojavafx;
 
 import javafx.fxml.FXML;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 
 import static com.github.serenerd.hellojavafx.PongApplication.WINDOW_HEIGHT;
@@ -16,6 +18,25 @@ public class PongController {
 
     @FXML
     private Rectangle leftRectangle;
+    @FXML
+    private Circle ball;
+
+    public void initialize() {
+        ball.layoutXProperty().addListener((observable, oldValue, newValue) -> checkCollision());
+        ball.layoutYProperty().addListener((observable, oldValue, newValue) -> checkCollision());
+
+        leftRectangle.layoutXProperty().addListener((observable, oldValue, newValue) -> checkCollision());
+        leftRectangle.layoutYProperty().addListener((observable, oldValue, newValue) -> checkCollision());
+    }
+
+    private void checkCollision() {
+        boolean isColliding = ball.getBoundsInParent().intersects(leftRectangle.getBoundsInParent());
+        if (isColliding) {
+            ball.setFill(Color.GREEN);
+        } else {
+            ball.setFill(Color.WHITE);
+        }
+    }
 
     public void handleKeyPressed(KeyEvent event) {
         switch (event.getCode()) {
