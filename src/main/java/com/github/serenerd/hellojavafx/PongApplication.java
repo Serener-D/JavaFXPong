@@ -10,10 +10,13 @@ import java.io.IOException;
 
 public class PongApplication extends Application {
 
+    public static final double WINDOW_WIDTH = 700D;
+    public static final double WINDOW_HEIGHT = 400D;
+
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader loader = new FXMLLoader(PongApplication.class.getResource("pong.fxml"));
-        Scene scene = new Scene(loader.load(), 700, 400);
+        Scene scene = new Scene(loader.load(), WINDOW_WIDTH, WINDOW_HEIGHT);
 
         PongController controller = loader.getController();
         scene.setOnKeyPressed(controller::handleKeyPressed);

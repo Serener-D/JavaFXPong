@@ -4,37 +4,50 @@ import javafx.fxml.FXML;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.shape.Rectangle;
 
+import static com.github.serenerd.hellojavafx.PongApplication.WINDOW_HEIGHT;
+
 public class PongController {
 
-    private static final double INITIAL_SPEED = 1;
-    private static final double MAX_SPEED = 200;
+    private static final double INITIAL_SPEED = 5;
+    private static final double MAX_SPEED = 100;
     private static final double ACCELERATION = 10;
-    private double currentLeftSpeed = INITIAL_SPEED;
+    private Double currentUpSpeed = INITIAL_SPEED;
+    private Double currentDownSpeed = INITIAL_SPEED;
+
     @FXML
-    private Rectangle leftRect;
+    private Rectangle leftRectangle;
 
     public void handleKeyPressed(KeyEvent event) {
         switch (event.getCode()) {
-            case W -> {
-                // todo возможно надо двигать на один-пять пикселей, чтобы было плавнее, но сделать большое ускорение
-                // todo тут надо более точно замерять оставшееся расстояние до границы, чтобы не улетать за границу
-                if (leftRect.getLayoutY() - currentLeftSpeed >= 0) {
-                    leftRect.setLayoutY(leftRect.getLayoutY() - currentLeftSpeed);
-                }
-            }
-            case S -> {
-                // fixme hardcode
-                if (leftRect.getLayoutY() + currentLeftSpeed <= 400) {
-                    leftRect.setLayoutY(leftRect.getLayoutY() + currentLeftSpeed);
-                }
-            }
-        }
-        if (currentLeftSpeed < MAX_SPEED) {
-            currentLeftSpeed += ACCELERATION;
+            case UP -> handleUpKey();
+            case DOWN -> handleDownKey();
         }
     }
 
     public void handleKeyReleased(KeyEvent event) {
-        currentLeftSpeed = INITIAL_SPEED;
+        currentUpSpeed = INITIAL_SPEED;
+        currentDownSpeed = INITIAL_SPEED;
+    }
+
+    private void handleUpKey() {
+        if ((leftRectangle.getLayoutY() - currentUpSpeed) <= 0) {
+            leftRectangle.setLayoutY(0);
+        } else {
+            leftRectangle.setLayoutY(leftRectangle.getLayoutY() - currentUpSpeed);
+        }
+        if (currentUpSpeed < MAX_SPEED) {
+            currentUpSpeed += ACCELERATION;
+        }
+    }
+
+    private void handleDownKey() {
+        if ((leftRectangle.getLayoutY() + currentDownSpeed) >= (WINDOW_HEIGHT - leftRectangle.getHeight())) {
+            leftRectangle.setLayoutY(WINDOW_HEIGHT - leftRectangle.getHeight());
+        } else {
+            leftRectangle.setLayoutY(leftRectangle.getLayoutY() + currentDownSpeed);
+        }
+        if (currentDownSpeed < MAX_SPEED) {
+            currentDownSpeed += ACCELERATION;
+        }
     }
 }
