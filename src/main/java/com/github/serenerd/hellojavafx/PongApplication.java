@@ -11,8 +11,8 @@ import java.io.IOException;
 
 public class PongApplication extends Application {
 
-    public static final double WINDOW_WIDTH = 700D;
-    public static final double WINDOW_HEIGHT = 400D;
+    public static final double WINDOW_WIDTH = 700d;
+    public static final double WINDOW_HEIGHT = 400d;
 
     @Override
     public void start(Stage stage) throws IOException {
