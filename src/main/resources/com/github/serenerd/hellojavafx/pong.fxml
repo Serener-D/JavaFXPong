@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.shape.Line?>
@@ -8,17 +7,29 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.github.serenerd.hellojavafx.PongController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0"
+            prefWidth="700.0" xmlns="http://javafx.com/javafx/17.0.6" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.github.serenerd.hellojavafx.PongController">
     <children>
-        <Circle fx:id="ball" fill="WHITE" layoutX="24.0" layoutY="107.0" radius="15.0" stroke="BLACK" strokeType="INSIDE" />
-        <Rectangle id="leftRectangle" fx:id="leftRectangle" arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="89.0" layoutY="156.0" stroke="BLACK" strokeType="INSIDE" width="24.0" />
-        <Rectangle fx:id="rightRectangle" arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="89.0" layoutX="676.0" layoutY="156.0" stroke="BLACK" strokeType="INSIDE" width="24.0" />
-      <Label fx:id="score" layoutX="325.0" layoutY="6.0" text="Score">
-         <font>
-            <Font size="26.0" />
-         </font>
-      </Label>
-      <Text layoutX="165.0" layoutY="318.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" />
-      <Line endX="52.0" endY="109.99996948242188" layoutX="298.0" layoutY="290.0" startX="52.0" startY="-290.0" />
+        <Circle fx:id="ball" fill="WHITE" layoutX="24.0" layoutY="107.0" radius="15.0" stroke="BLACK"
+                strokeType="INSIDE"/>
+        <Rectangle id="leftRectangle" fx:id="leftRectangle" arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="89.0"
+                   layoutY="156.0" stroke="BLACK" strokeType="INSIDE" width="24.0"/>
+        <Rectangle fx:id="rightRectangle" arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="89.0" layoutX="676.0"
+                   layoutY="156.0" stroke="BLACK" strokeType="INSIDE" width="24.0"/>
+        <Line endX="52.0" endY="109.99996948242188" layoutX="298.0" layoutY="290.0" startX="52.0" startY="-290.0"
+              stroke="WHITE"/>
+        <Text fx:id="scoreText1" fill="WHITE" layoutX="276.0" layoutY="27.0" lineSpacing="23.0" strokeType="OUTSIDE"
+              strokeWidth="0.0" text="0" textAlignment="RIGHT" wrappingWidth="70.0">
+            <font>
+                <Font size="30.0"/>
+            </font>
+        </Text>
+        <Text fx:id="scoreText2" fill="WHITE" layoutX="354.0" layoutY="27.0" lineSpacing="23.0" strokeType="OUTSIDE"
+              strokeWidth="0.0" text="0" wrappingWidth="70.0">
+            <font>
+                <Font size="30.0"/>
+            </font>
+        </Text>
     </children>
 </AnchorPane>

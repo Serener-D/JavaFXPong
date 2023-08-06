@@ -3,18 +3,17 @@ package com.github.serenerd.hellojavafx;
 import javafx.animation.AnimationTimer;
 import javafx.fxml.FXML;
 import javafx.geometry.Bounds;
-import javafx.scene.control.Label;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
 
 import static com.github.serenerd.hellojavafx.PongApplication.WINDOW_HEIGHT;
 
 public class PongController {
 
     private static final double SPEED = 8;
-
     @FXML
     private Rectangle leftRectangle;
     @FXML
@@ -22,15 +21,15 @@ public class PongController {
     @FXML
     private Circle ball;
     @FXML
-    private Label score;
-
+    private Text scoreText1;
+    @FXML
+    private Text scoreText2;
     private boolean upPressed = false;
     private boolean downPressed = false;
     private boolean wPressed = false;
     private boolean sPressed = false;
-
-    private int playerScore1 = 0;
-    private int playerScore2 = 0;
+    private int score1 = 0;
+    private int score2 = 0;
 
     private final AnimationTimer timer = new AnimationTimer() {
         @Override
@@ -50,7 +49,8 @@ public class PongController {
 
     public void initialize() {
         timer.start();
-        score.setText(playerScore1 + " : " + playerScore2);
+        scoreText1.setText("0");
+        scoreText2.setText("0");
         ball.layoutXProperty().addListener((observable, oldValue, newValue) -> checkBallCollision());
         ball.layoutYProperty().addListener((observable, oldValue, newValue) -> checkBallCollision());
         leftRectangle.layoutXProperty().addListener((observable, oldValue, newValue) -> checkBallCollision());
@@ -64,7 +64,7 @@ public class PongController {
                 bounds.getMaxY() >= WINDOW_HEIGHT ||
                 bounds.getMinY() <= 0;
         if (isColliding) {
-            score.setText(++playerScore1 + " : " + playerScore2);
+            scoreText1.setText(Integer.toString(++score1));
             ball.setFill(Color.GREEN);
         } else {
             ball.setFill(Color.WHITE);
@@ -89,6 +89,7 @@ public class PongController {
         }
     }
 
+    //fixme если один игрок отпускает кнопку, то сбивается движение второго
     public void handleKeyReleased(KeyEvent ignoredKey) {
         upPressed = false;
         downPressed = false;
