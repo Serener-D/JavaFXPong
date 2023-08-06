@@ -13,45 +13,37 @@ import static com.github.serenerd.hellojavafx.PongApplication.WINDOW_HEIGHT;
 
 public class PongController {
 
-    private static final double INITIAL_SPEED = 1;
-    private static final double MAX_SPEED = 10;
-    private static final double ACCELERATION = 1;
-    private Double currentUpSpeed = INITIAL_SPEED;
-    private Double currentDownSpeed = INITIAL_SPEED;
+    private static final double SPEED = 8;
 
     @FXML
     private Rectangle leftRectangle;
     @FXML
+    private Rectangle rightRectangle;
+    @FXML
     private Circle ball;
     @FXML
     private Label score;
+
     private boolean upPressed = false;
     private boolean downPressed = false;
+    private boolean wPressed = false;
+    private boolean sPressed = false;
 
     private int playerScore1 = 0;
     private int playerScore2 = 0;
 
-    private AnimationTimer timer = new AnimationTimer() {
+    private final AnimationTimer timer = new AnimationTimer() {
         @Override
         public void handle(long now) {
             if (upPressed) {
-                if ((leftRectangle.getLayoutY() - currentUpSpeed) <= 0) {
-                    leftRectangle.setLayoutY(0);
-                } else {
-                    leftRectangle.setLayoutY(leftRectangle.getLayoutY() - currentUpSpeed);
-                }
-                if (currentUpSpeed < MAX_SPEED) {
-                    currentUpSpeed += ACCELERATION;
-                }
+                handleUpKey();
             } else if (downPressed) {
-                if ((leftRectangle.getLayoutY() + currentDownSpeed) >= (WINDOW_HEIGHT - leftRectangle.getHeight())) {
-                    leftRectangle.setLayoutY(WINDOW_HEIGHT - leftRectangle.getHeight());
-                } else {
-                    leftRectangle.setLayoutY(leftRectangle.getLayoutY() + currentDownSpeed);
-                }
-                if (currentDownSpeed < MAX_SPEED) {
-                    currentDownSpeed += ACCELERATION;
-                }
+                handleDownKey();
+            }
+            if (wPressed) {
+                handleWKey();
+            } else if (sPressed) {
+                handleSKey();
             }
         }
     };
@@ -92,13 +84,47 @@ public class PongController {
         switch (event.getCode()) {
             case UP -> upPressed = true;
             case DOWN -> downPressed = true;
+            case W -> wPressed = true;
+            case S -> sPressed = true;
         }
     }
 
     public void handleKeyReleased(KeyEvent ignoredKey) {
-        currentUpSpeed = INITIAL_SPEED;
-        currentDownSpeed = INITIAL_SPEED;
         upPressed = false;
         downPressed = false;
+        wPressed = false;
+        sPressed = false;
+    }
+
+    public void handleUpKey() {
+        if ((rightRectangle.getLayoutY() - SPEED) <= 0) {
+            rightRectangle.setLayoutY(0);
+        } else {
+            rightRectangle.setLayoutY(rightRectangle.getLayoutY() - SPEED);
+        }
+    }
+
+    public void handleDownKey() {
+        if ((rightRectangle.getLayoutY() + SPEED) >= (WINDOW_HEIGHT - rightRectangle.getHeight())) {
+            rightRectangle.setLayoutY(WINDOW_HEIGHT - rightRectangle.getHeight());
+        } else {
+            rightRectangle.setLayoutY(rightRectangle.getLayoutY() + SPEED);
+        }
+    }
+
+    public void handleWKey() {
+        if ((leftRectangle.getLayoutY() - SPEED) <= 0) {
+            leftRectangle.setLayoutY(0);
+        } else {
+            leftRectangle.setLayoutY(leftRectangle.getLayoutY() - SPEED);
+        }
+    }
+
+    public void handleSKey() {
+        if ((leftRectangle.getLayoutY() + SPEED) >= (WINDOW_HEIGHT - leftRectangle.getHeight())) {
+            leftRectangle.setLayoutY(WINDOW_HEIGHT - leftRectangle.getHeight());
+        } else {
+            leftRectangle.setLayoutY(leftRectangle.getLayoutY() + SPEED);
+        }
     }
 }
