@@ -1,6 +1,8 @@
 package com.github.serenerd.hellojavafx;
 
 import javafx.fxml.FXML;
+import javafx.geometry.Bounds;
+import javafx.scene.control.Label;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -20,16 +22,38 @@ public class PongController {
     private Rectangle leftRectangle;
     @FXML
     private Circle ball;
+    @FXML
+    private Label score;
+
+    private int playerScore1 = 0;
+    private int playerScore2 = 0;
 
     public void initialize() {
-        ball.layoutXProperty().addListener((observable, oldValue, newValue) -> checkCollision());
-        ball.layoutYProperty().addListener((observable, oldValue, newValue) -> checkCollision());
+        score.setText(playerScore1 + " : " + playerScore2);
 
-        leftRectangle.layoutXProperty().addListener((observable, oldValue, newValue) -> checkCollision());
-        leftRectangle.layoutYProperty().addListener((observable, oldValue, newValue) -> checkCollision());
+        ball.layoutXProperty().addListener((observable, oldValue, newValue) -> checkBallCollision());
+        ball.layoutYProperty().addListener((observable, oldValue, newValue) -> checkBallCollision());
+
+        leftRectangle.layoutXProperty().addListener((observable, oldValue, newValue) -> checkBallCollision());
+        leftRectangle.layoutYProperty().addListener((observable, oldValue, newValue) -> checkBallCollision());
+
+        leftRectangle.layoutYProperty().addListener((observable, oldValue, newValue) -> checkRectangleCollision());
     }
 
-    private void checkCollision() {
+    private void checkRectangleCollision() {
+        Bounds bounds = leftRectangle.getBoundsInParent();
+        boolean isColliding = ball.getBoundsInParent().intersects(leftRectangle.getBoundsInParent()) ||
+                bounds.getMaxY() >= WINDOW_HEIGHT ||
+                bounds.getMinY() <= 0;
+        if (isColliding) {
+            score.setText(++playerScore1 + " : " + playerScore2);
+            ball.setFill(Color.GREEN);
+        } else {
+            ball.setFill(Color.WHITE);
+        }
+    }
+
+    private void checkBallCollision() {
         boolean isColliding = ball.getBoundsInParent().intersects(leftRectangle.getBoundsInParent());
         if (isColliding) {
             ball.setFill(Color.GREEN);
