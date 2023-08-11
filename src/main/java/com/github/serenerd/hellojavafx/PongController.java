@@ -9,7 +9,10 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 
+import java.util.Random;
+
 import static com.github.serenerd.hellojavafx.PongApplication.WINDOW_HEIGHT;
+import static com.github.serenerd.hellojavafx.PongApplication.WINDOW_WIDTH;
 
 public class PongController {
 
@@ -30,27 +33,71 @@ public class PongController {
     private boolean sPressed = false;
     private int score1 = 0;
     private int score2 = 0;
+    private double ballSpeed = 5d;
+    private final Random random = new Random();
+    private double ballCurrentX = WINDOW_WIDTH / 2;
+    private double ballCurrentY = WINDOW_HEIGHT / 2;
+    private double ballTargetX;
+    private double ballTargetY;
+
+    private double xSpeed;
+    private double ySpeed;
 
     private final AnimationTimer timer = new AnimationTimer() {
         @Override
         public void handle(long now) {
-            if (upPressed) {
-                handleUpKey();
-            } else if (downPressed) {
-                handleDownKey();
-            }
-            if (wPressed) {
-                handleWKey();
-            } else if (sPressed) {
-                handleSKey();
-            }
+            handleBall();
+            handleRectangles();
         }
     };
 
+    private void handleBall() {
+        if (ballCurrentX < ballTargetX) {
+            ballCurrentX = Math.min(ballCurrentX + xSpeed, ballTargetX);
+        } else {
+            ballCurrentX = Math.max(ballCurrentX - xSpeed, ballTargetX);
+        }
+        if (ballCurrentY < ballTargetY) {
+            ballCurrentY += Math.min(ballCurrentY + ySpeed, ballTargetY);
+        } else {
+            ballCurrentY = Math.max(ballCurrentY - ySpeed, ballTargetY);
+        }
+        ball.setLayoutX(ballCurrentX);
+        ball.setLayoutY(ballCurrentY);
+    }
+
+    private void handleRectangles() {
+        if (upPressed) {
+            handleUpKey();
+        } else if (downPressed) {
+            handleDownKey();
+        }
+        if (wPressed) {
+            handleWKey();
+        } else if (sPressed) {
+            handleSKey();
+        }
+    }
+
     public void initialize() {
+        this.ballTargetX = random.nextInt(0, (int) WINDOW_WIDTH + 1);
+        double[] possibleY = {0, WINDOW_HEIGHT};
+        int randomIndex = random.nextInt(possibleY.length);
+        this.ballTargetY = possibleY[randomIndex];
+        double deltaX = Math.abs(ballTargetX - ballCurrentX);
+        double deltaY = Math.abs(ballCurrentY - ballTargetY);
+        if (deltaX == deltaY) {
+            xSpeed = ballSpeed;
+            ySpeed = ballSpeed;
+        } else if (deltaX > deltaY) {
+            xSpeed = ballSpeed;
+            ySpeed = deltaY / (deltaX / ballSpeed);
+        } else {
+            xSpeed = deltaX / (deltaY / ballSpeed);
+            ySpeed = ballSpeed;
+        }
+
         timer.start();
-        scoreText1.setText("0");
-        scoreText2.setText("0");
         ball.layoutXProperty().addListener((observable, oldValue, newValue) -> checkBallCollision());
         ball.layoutYProperty().addListener((observable, oldValue, newValue) -> checkBallCollision());
         leftRectangle.layoutXProperty().addListener((observable, oldValue, newValue) -> checkBallCollision());
