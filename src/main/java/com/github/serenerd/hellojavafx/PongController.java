@@ -58,7 +58,7 @@ public class PongController {
             ballCurrentX = Math.max(ballCurrentX - xSpeed, ballTargetX);
         }
         if (ballCurrentY < ballTargetY) {
-            ballCurrentY += Math.min(ballCurrentY + ySpeed, ballTargetY);
+            ballCurrentY = Math.min(ballCurrentY + ySpeed, ballTargetY);
         } else {
             ballCurrentY = Math.max(ballCurrentY - ySpeed, ballTargetY);
         }
@@ -80,10 +80,24 @@ public class PongController {
     }
 
     public void initialize() {
-        this.ballTargetX = random.nextInt(0, (int) WINDOW_WIDTH + 1);
-        double[] possibleY = {0, WINDOW_HEIGHT};
-        int randomIndex = random.nextInt(possibleY.length);
-        this.ballTargetY = possibleY[randomIndex];
+        defineBallTarget();
+        defineBallSpeed();
+        timer.start();
+        ball.layoutXProperty().addListener((observable, oldValue, newValue) -> checkBallCollision());
+        ball.layoutYProperty().addListener((observable, oldValue, newValue) -> checkBallCollision());
+        leftRectangle.layoutXProperty().addListener((observable, oldValue, newValue) -> checkBallCollision());
+        leftRectangle.layoutYProperty().addListener((observable, oldValue, newValue) -> checkBallCollision());
+        leftRectangle.layoutYProperty().addListener((observable, oldValue, newValue) -> checkRectangleCollision());
+    }
+
+    private void defineBallTarget() {
+        double[] possibleX = {0, WINDOW_WIDTH};
+        int randomIndex = random.nextInt(possibleX.length);
+        this.ballTargetX = possibleX[randomIndex];
+        this.ballTargetY = random.nextInt(0, (int) WINDOW_HEIGHT + 1);
+    }
+
+    private void defineBallSpeed() {
         double deltaX = Math.abs(ballTargetX - ballCurrentX);
         double deltaY = Math.abs(ballCurrentY - ballTargetY);
         if (deltaX == deltaY) {
@@ -96,13 +110,6 @@ public class PongController {
             xSpeed = deltaX / (deltaY / ballSpeed);
             ySpeed = ballSpeed;
         }
-
-        timer.start();
-        ball.layoutXProperty().addListener((observable, oldValue, newValue) -> checkBallCollision());
-        ball.layoutYProperty().addListener((observable, oldValue, newValue) -> checkBallCollision());
-        leftRectangle.layoutXProperty().addListener((observable, oldValue, newValue) -> checkBallCollision());
-        leftRectangle.layoutYProperty().addListener((observable, oldValue, newValue) -> checkBallCollision());
-        leftRectangle.layoutYProperty().addListener((observable, oldValue, newValue) -> checkRectangleCollision());
     }
 
     private void checkRectangleCollision() {
