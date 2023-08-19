@@ -9,14 +9,12 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 
-import java.util.Random;
-
 import static com.github.serenerd.hellojavafx.PongApplication.WINDOW_HEIGHT;
 import static com.github.serenerd.hellojavafx.PongApplication.WINDOW_WIDTH;
 
 public class PongController {
 
-    private static final double SPEED = 8;
+    private static final double RECTANGLE_SPEED = 8;
     @FXML
     private Rectangle leftRectangle;
     @FXML
@@ -27,21 +25,19 @@ public class PongController {
     private Text scoreText1;
     @FXML
     private Text scoreText2;
+
     private boolean upPressed = false;
     private boolean downPressed = false;
     private boolean wPressed = false;
     private boolean sPressed = false;
     private int score1 = 0;
     private int score2 = 0;
+
     private double ballSpeed = 5d;
-    private final Random random = new Random();
     private double ballCurrentX = WINDOW_WIDTH / 2;
     private double ballCurrentY = WINDOW_HEIGHT / 2;
-    private double ballTargetX;
-    private double ballTargetY;
-
-    private double xSpeed;
-    private double ySpeed;
+    private double ballNextX;
+    private double ballNextY;
 
     private final AnimationTimer timer = new AnimationTimer() {
         @Override
@@ -52,15 +48,19 @@ public class PongController {
     };
 
     private void handleBall() {
-        if (ballCurrentX < ballTargetX) {
-            ballCurrentX = Math.min(ballCurrentX + xSpeed, ballTargetX);
+        if (ballCurrentX < ballNextX) {
+            ballCurrentX += ballSpeed;
+            ballNextX += ballSpeed;
         } else {
-            ballCurrentX = Math.max(ballCurrentX - xSpeed, ballTargetX);
+            ballCurrentX -= ballSpeed;
+            ballNextX -= ballSpeed;
         }
-        if (ballCurrentY < ballTargetY) {
-            ballCurrentY = Math.min(ballCurrentY + ySpeed, ballTargetY);
+        if (ballCurrentY < ballNextY) {
+            ballCurrentY += ballSpeed;
+            ballNextY += ballSpeed;
         } else {
-            ballCurrentY = Math.max(ballCurrentY - ySpeed, ballTargetY);
+            ballCurrentY -= ballSpeed;
+            ballNextY -= ballSpeed;
         }
         ball.setLayoutX(ballCurrentX);
         ball.setLayoutY(ballCurrentY);
@@ -80,8 +80,7 @@ public class PongController {
     }
 
     public void initialize() {
-        defineBallTarget();
-        defineBallSpeed();
+        defineBallInitialDirection();
         timer.start();
         ball.layoutXProperty().addListener((observable, oldValue, newValue) -> checkBallCollision());
         ball.layoutYProperty().addListener((observable, oldValue, newValue) -> checkBallCollision());
@@ -90,26 +89,10 @@ public class PongController {
         leftRectangle.layoutYProperty().addListener((observable, oldValue, newValue) -> checkRectangleCollision());
     }
 
-    private void defineBallTarget() {
-        double[] possibleX = {0, WINDOW_WIDTH};
-        int randomIndex = random.nextInt(possibleX.length);
-        this.ballTargetX = possibleX[randomIndex];
-        this.ballTargetY = random.nextInt(0, (int) WINDOW_HEIGHT + 1);
-    }
-
-    private void defineBallSpeed() {
-        double deltaX = Math.abs(ballTargetX - ballCurrentX);
-        double deltaY = Math.abs(ballCurrentY - ballTargetY);
-        if (deltaX == deltaY) {
-            xSpeed = ballSpeed;
-            ySpeed = ballSpeed;
-        } else if (deltaX > deltaY) {
-            xSpeed = ballSpeed;
-            ySpeed = deltaY / (deltaX / ballSpeed);
-        } else {
-            xSpeed = deltaX / (deltaY / ballSpeed);
-            ySpeed = ballSpeed;
-        }
+    private void defineBallInitialDirection() {
+        // fixme временный хардкод
+        this.ballNextX = ballCurrentX + ballSpeed;
+        this.ballNextY = ballCurrentY + ballSpeed;
     }
 
     private void checkRectangleCollision() {
@@ -126,7 +109,12 @@ public class PongController {
     }
 
     private void checkBallCollision() {
-        boolean isColliding = ball.getBoundsInParent().intersects(leftRectangle.getBoundsInParent());
+        boolean isColliding = ball.getLayoutBounds().intersects(ball.getParent().getLayoutBounds());
+//        boolean isColliding = ball.getBoundsInParent().intersects(ball.getLayoutBounds());
+        Bounds layoutBounds = ball.getLayoutBounds();
+        Bounds ballBounds = ball.getBoundsInParent();
+        Bounds fieldBounds = ball.getParent().getBoundsInParent();
+        Bounds layoutBoundsInParent = ball.getParent().getLayoutBounds();
         if (isColliding) {
             ball.setFill(Color.GREEN);
         } else {
@@ -152,34 +140,34 @@ public class PongController {
     }
 
     public void handleUpKey() {
-        if ((rightRectangle.getLayoutY() - SPEED) <= 0) {
+        if ((rightRectangle.getLayoutY() - RECTANGLE_SPEED) <= 0) {
             rightRectangle.setLayoutY(0);
         } else {
-            rightRectangle.setLayoutY(rightRectangle.getLayoutY() - SPEED);
+            rightRectangle.setLayoutY(rightRectangle.getLayoutY() - RECTANGLE_SPEED);
         }
     }
 
     public void handleDownKey() {
-        if ((rightRectangle.getLayoutY() + SPEED) >= (WINDOW_HEIGHT - rightRectangle.getHeight())) {
+        if ((rightRectangle.getLayoutY() + RECTANGLE_SPEED) >= (WINDOW_HEIGHT - rightRectangle.getHeight())) {
             rightRectangle.setLayoutY(WINDOW_HEIGHT - rightRectangle.getHeight());
         } else {
-            rightRectangle.setLayoutY(rightRectangle.getLayoutY() + SPEED);
+            rightRectangle.setLayoutY(rightRectangle.getLayoutY() + RECTANGLE_SPEED);
         }
     }
 
     public void handleWKey() {
-        if ((leftRectangle.getLayoutY() - SPEED) <= 0) {
+        if ((leftRectangle.getLayoutY() - RECTANGLE_SPEED) <= 0) {
             leftRectangle.setLayoutY(0);
         } else {
-            leftRectangle.setLayoutY(leftRectangle.getLayoutY() - SPEED);
+            leftRectangle.setLayoutY(leftRectangle.getLayoutY() - RECTANGLE_SPEED);
         }
     }
 
     public void handleSKey() {
-        if ((leftRectangle.getLayoutY() + SPEED) >= (WINDOW_HEIGHT - leftRectangle.getHeight())) {
+        if ((leftRectangle.getLayoutY() + RECTANGLE_SPEED) >= (WINDOW_HEIGHT - leftRectangle.getHeight())) {
             leftRectangle.setLayoutY(WINDOW_HEIGHT - leftRectangle.getHeight());
         } else {
-            leftRectangle.setLayoutY(leftRectangle.getLayoutY() + SPEED);
+            leftRectangle.setLayoutY(leftRectangle.getLayoutY() + RECTANGLE_SPEED);
         }
     }
 }
