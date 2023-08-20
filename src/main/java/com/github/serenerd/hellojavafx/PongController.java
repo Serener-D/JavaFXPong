@@ -109,13 +109,12 @@ public class PongController {
     }
 
     private void checkBallCollision() {
-        boolean isColliding = ball.getLayoutBounds().intersects(ball.getParent().getLayoutBounds());
-//        boolean isColliding = ball.getBoundsInParent().intersects(ball.getLayoutBounds());
-        Bounds layoutBounds = ball.getLayoutBounds();
         Bounds ballBounds = ball.getBoundsInParent();
-        Bounds fieldBounds = ball.getParent().getBoundsInParent();
-        Bounds layoutBoundsInParent = ball.getParent().getLayoutBounds();
-        if (isColliding) {
+        double minX = ballBounds.getMinX();
+        double maxX = ballBounds.getMaxX();
+        double minY = ballBounds.getMinY();
+        double maxY = ballBounds.getMaxY();
+        if (minX <= 0 || maxX >= WINDOW_WIDTH || minY <= 0 || maxY >= WINDOW_HEIGHT) {
             ball.setFill(Color.GREEN);
         } else {
             ball.setFill(Color.WHITE);
