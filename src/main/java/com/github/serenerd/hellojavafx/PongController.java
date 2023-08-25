@@ -17,9 +17,11 @@ import static com.github.serenerd.hellojavafx.PongApplication.WINDOW_WIDTH;
 // fixme сделай отдельный класс для контроля клавиатуры
 // fixme сделай отдельный класс для контроля мяча
 // fixme дичь, надо упростить все это
+// fixme сейчас есть баги. скорее всего, из-за неправильного рассчета перемещений, из-за хардкода +ballSpeed
 public class PongController {
 
     private static final double RECTANGLE_SPEED = 8d;
+    private static final double INITIAL_BALL_SPEED = 4d;
     @FXML
     private Rectangle leftRectangle;
     @FXML
@@ -40,10 +42,8 @@ public class PongController {
     private int player1Score = 0;
     private int player2Score = 0;
 
-    private double ballSpeed = 5d;
+    private double ballSpeed = INITIAL_BALL_SPEED;
     private static final double BALL_SPEED_LIMIT = 10d;
-    private double ballCurrentX = WINDOW_WIDTH / 2;
-    private double ballCurrentY = WINDOW_HEIGHT / 2;
     private double ballNextX;
     private double ballNextY;
 
@@ -55,66 +55,70 @@ public class PongController {
         }
     };
 
-    private void handleBall() {
-        if (ballCurrentX < ballNextX) {
-            ballCurrentX += ballSpeed;
-            ballNextX += ballSpeed;
-        } else {
-            ballCurrentX -= ballSpeed;
-            ballNextX -= ballSpeed;
-        }
-        if (ballCurrentY < ballNextY) {
-            ballCurrentY += ballSpeed;
-            ballNextY += ballSpeed;
-        } else {
-            ballCurrentY -= ballSpeed;
-            ballNextY -= ballSpeed;
-        }
-        ball.setLayoutX(ballCurrentX);
-        ball.setLayoutY(ballCurrentY);
-    }
-
-    private void handleRectangles() {
-        if (upPressed) {
-            handleUpKey();
-        } else if (downPressed) {
-            handleDownKey();
-        }
-        if (wPressed) {
-            handleWKey();
-        } else if (sPressed) {
-            handleSKey();
-        }
-    }
-
     public void initialize() {
         defineBallInitialDirection();
         timer.start();
-        ball.layoutXProperty().addListener((observable, oldValue, newValue) -> checkBallCollision());
-        ball.layoutYProperty().addListener((observable, oldValue, newValue) -> checkBallCollision());
+    }
+
+    private void handleBall() {
+        checkBallCollision();
+        double diffX = ballNextX - ball.getLayoutX();
+        double diffY = ballNextY - ball.getLayoutY();
+        ball.setLayoutX(ballNextX);
+        ball.setLayoutY(ballNextY);
+        // fixme после сета новых значений можно сразу чекать коллизию. Будет ветвление
+//        checkBallCollision();
+        Bounds boundsInParent = ball.getBoundsInParent();
+        if (diffX > 0) {
+            if (boundsInParent.getMaxX() + ballSpeed < WINDOW_WIDTH) {
+                ballNextX += ballSpeed;
+            } else {
+                ballNextX += WINDOW_WIDTH - boundsInParent.getMaxX();
+            }
+        } else {
+            if (boundsInParent.getMinX() - ballSpeed > 0) {
+                ballNextX -= ballSpeed;
+            } else {
+                ballNextX -= ballSpeed - boundsInParent.getMinX();
+            }
+        }
+        if (diffY > 0) {
+            if (boundsInParent.getMaxY() + ballSpeed < WINDOW_HEIGHT) {
+                ballNextY += ballSpeed;
+            } else {
+                ballNextY += WINDOW_HEIGHT - boundsInParent.getMaxY();
+            }
+        } else {
+            if (boundsInParent.getMinY() - ballSpeed > 0) {
+                ballNextY -= ballSpeed;
+            } else {
+                ballNextY -= boundsInParent.getMinY() - ballSpeed;
+            }
+        }
+        // fixme бага, если шар касается края прямоугольника
+//        checkBallCollision();
     }
 
     private void defineBallInitialDirection() {
         random.nextInt(2);
         if (random.nextInt(2) == 0) {
-            this.ballNextX = ballCurrentX + ballSpeed;
+            this.ballNextX = ball.getLayoutX() + ballSpeed;
         } else {
-            this.ballNextX = ballCurrentX - ballSpeed;
+            this.ballNextX = ball.getLayoutX() - ballSpeed;
         }
         if (random.nextInt(2) == 0) {
-            this.ballNextY = ballCurrentY + ballSpeed;
+            this.ballNextY = ball.getLayoutY() + ballSpeed;
         } else {
-            this.ballNextY = ballCurrentY - ballSpeed;
+            this.ballNextY = ball.getLayoutY() - ballSpeed;
         }
     }
 
     private void checkBallCollision() {
         Bounds ballBounds = ball.getBoundsInParent();
-        double minX = ballBounds.getMinX();
-        double maxX = ballBounds.getMaxX();
-        double minY = ballBounds.getMinY();
-        double maxY = ballBounds.getMaxY();
-        if (minX <= 0 || maxX >= WINDOW_WIDTH || minY <= 0 || maxY >= WINDOW_HEIGHT) {
+        if (ballBounds.getMinX() <= 0
+                || ballBounds.getMaxX() >= WINDOW_WIDTH
+                || ballBounds.getMinY() <= 0
+                || ballBounds.getMaxY() >= WINDOW_HEIGHT) {
             // ball hit one of the walls
             deflectBallOfTheWall();
             ball.setFill(Color.GREEN);
@@ -143,18 +147,18 @@ public class PongController {
             player1Score++;
             scoreText1.setText(String.valueOf(player1Score));
             resetBall();
-        } else if (ballCurrentX < ballNextX && (ballNextY + ball.getRadius()) >= WINDOW_HEIGHT) {
+        } else if (ball.getLayoutX() < ballNextX && (ballNextY + ball.getRadius()) >= WINDOW_HEIGHT) {
             // ball hits bottom side of the screen moving from left to right
-            ballNextY -= 2 * ballSpeed;
-        } else if (ballCurrentX > ballNextX && (ballNextY + ball.getRadius()) >= WINDOW_HEIGHT) {
+            ballNextY -= 1;
+        } else if (ball.getLayoutX() > ballNextX && (ballNextY + ball.getRadius()) >= WINDOW_HEIGHT) {
             // ball hits bottom side of the screen moving from right to left
-            ballNextY -= 2 * ballSpeed;
-        } else if (ballCurrentX < ballNextX && (ballNextY - ball.getRadius()) <= 0) {
+            ballNextY -= 1;
+        } else if (ball.getLayoutX() < ballNextX && (ballNextY - ball.getRadius()) <= 0) {
             // ball hits upper side of the screen moving from left to right
-            ballNextY += 2 * ballSpeed;
-        } else if (ballCurrentX > ballNextX && (ballNextY - ball.getRadius()) <= 0) {
+            ballNextY += 1;
+        } else if (ball.getLayoutX() > ballNextX && (ballNextY - ball.getRadius()) <= 0) {
             // ball hits upper side of the screen moving from right to left
-            ballNextY += 2 * ballSpeed;
+            ballNextY += 1;
         } else {
             throw new IllegalStateException("Unexpected ball window collision");
         }
@@ -163,32 +167,50 @@ public class PongController {
     // fixme переделать под умное определение, части плафтормы, в которую попал мяч
     private void deflectBallOfRectangle() {
         Bounds ballBounds = ball.getBoundsInParent();
-        double minX = ballBounds.getMinX();
-        double maxX = ballBounds.getMaxX();
-        if (minX <= leftRectangle.getBoundsInParent().getMaxX()) {
-            if (ballNextY > ballCurrentY) {
-                // ball hits left rectangle going upwards
-                ballNextX += ballSpeed;
-            } else {
-                ballNextX += ballSpeed;
-                // ball hits left rectangle going downwards
-            }
-            increaseBallSpeed();
-        } else if (maxX >= rightRectangle.getBoundsInParent().getMinX()) {
-            if (ballNextY > ballCurrentY) {
-                ballNextX -= ballSpeed;
-                // ball hits right rectangle going upwards
-            } else {
-                ballNextX -= ballSpeed;
-                // ball hits right rectangle going downwards
-            }
-            increaseBallSpeed();
+        Bounds triangleBounds = rightRectangle.getBoundsInParent();
+        if (ball.getBoundsInParent().getMinX() <= leftRectangle.getBoundsInParent().getMaxX()) {
+            ballNextX += 1;
+        } else if (ball.getBoundsInParent().getMaxX() >= rightRectangle.getBoundsInParent().getMinX()) {
+            ballNextX -= 1;
         } else {
             throw new IllegalStateException("Unexpected ball rectangle collision");
         }
+        increaseBallSpeed();
     }
 
+    private void resetBall() {
+        ball.setLayoutX(WINDOW_WIDTH / 2);
+        ball.setLayoutY(WINDOW_HEIGHT / 2);
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        ballSpeed = INITIAL_BALL_SPEED;
+        defineBallInitialDirection();
+    }
+
+    private void increaseBallSpeed() {
+        if (ballSpeed != BALL_SPEED_LIMIT) {
+            ballSpeed += 0.5d;
+        }
+    }
+
+    // ДАЛЕЕ ИДУТ МЕТОДЫ ДЛЯ КОНТРОЛЯ ПЛАТФОРМ И КЛАВИАТУРЫ
     //fixme если один игрок отпускает кнопку, то сбивается движение второго
+    private void handleRectangles() {
+        if (upPressed) {
+            handleUpKey();
+        } else if (downPressed) {
+            handleDownKey();
+        }
+        if (wPressed) {
+            handleWKey();
+        } else if (sPressed) {
+            handleSKey();
+        }
+    }
+
     public void handleKeyReleased(KeyEvent ignoredKey) {
         upPressed = false;
         downPressed = false;
@@ -196,21 +218,6 @@ public class PongController {
         sPressed = false;
     }
 
-    private void resetBall() {
-        ballCurrentX = WINDOW_WIDTH / 2;
-        ballCurrentY = WINDOW_HEIGHT / 2;
-        ball.setLayoutX(ballCurrentX);
-        ball.setLayoutY(ballCurrentY);
-        defineBallInitialDirection();
-    }
-
-    private void increaseBallSpeed() {
-        if (ballSpeed != BALL_SPEED_LIMIT) {
-            ballSpeed += 1d;
-        }
-    }
-
-    // ДАЛЕЕ ИДУТ МЕТОДЫ ДЛЯ КОНТРОЛЯ ПЛАТФОРМ И КЛАВИАТУРЫ
     public void handleKeyPressed(KeyEvent event) {
         switch (event.getCode()) {
             case UP -> upPressed = true;
