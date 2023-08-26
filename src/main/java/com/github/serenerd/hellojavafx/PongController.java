@@ -16,6 +16,7 @@ import static com.github.serenerd.hellojavafx.KeyBoardHelper.handleRectangles;
 import static com.github.serenerd.hellojavafx.PongApplication.WINDOW_HEIGHT;
 import static com.github.serenerd.hellojavafx.PongApplication.WINDOW_WIDTH;
 
+// todo детектить, в какую часть платформы попал мяч
 public class PongController {
 
     @FXML
@@ -78,7 +79,7 @@ public class PongController {
             if (boundsInParent.getMinX() - ballSpeed > 0) {
                 ballNextX -= ballSpeed;
             } else {
-                ballNextX -= ballSpeed - boundsInParent.getMinX();
+                ballNextX -= boundsInParent.getMinX();
             }
         }
         if (vectorY > 0) {
@@ -138,7 +139,6 @@ public class PongController {
         }
     }
 
-    // fixme даг, если мяч одновременно коснулся платформы и левого края окна ???
     private void deflectBallOfRectangle(double vectorY) {
         if (ball.getBoundsInParent().getMinX() <= leftRectangle.getBoundsInParent().getMaxX() && vectorY > 0) {
             ballNextX += ballSpeed;
@@ -160,11 +160,6 @@ public class PongController {
     private void resetBall() {
         ball.setLayoutX(WINDOW_WIDTH / 2);
         ball.setLayoutY(WINDOW_HEIGHT / 2);
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
         ballSpeed = INITIAL_BALL_SPEED;
         defineBallInitialDirection();
     }
