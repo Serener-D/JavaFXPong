@@ -4,7 +4,6 @@ import javafx.animation.AnimationTimer;
 import javafx.fxml.FXML;
 import javafx.geometry.Bounds;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
@@ -15,8 +14,6 @@ import static com.github.serenerd.hellojavafx.KeyBoardHelper.handleRectangles;
 import static com.github.serenerd.hellojavafx.PongApplication.WINDOW_HEIGHT;
 import static com.github.serenerd.hellojavafx.PongApplication.WINDOW_WIDTH;
 
-// fixme сделай отдельный класс для контроля мяча
-// fixme дичь, надо упростить все это
 public class PongController {
 
     public static final double INITIAL_BALL_SPEED = 4d;
@@ -31,7 +28,7 @@ public class PongController {
     @FXML
     private Text scoreText2;
 
-    private Random random = new Random();
+    private final Random random = new Random();
 
     private int player1Score = 0;
     private int player2Score = 0;
@@ -59,12 +56,14 @@ public class PongController {
         double vectorY = ballNextY - ball.getLayoutY();
         ball.setLayoutX(ballNextX);
         ball.setLayoutY(ballNextY);
-        if (!isRectangleHit()) {
-            moveBallForward(vectorX, vectorY);
-        } else {
+        if (isRectangleHit()) {
             deflectBallOfRectangle(vectorY);
+            increaseBallSpeed();
+        } else if (isScoreHit()) {
+            scoreHit();
+        } else {
+            moveBallForward(vectorX, vectorY);
         }
-        checkBallWallCollision();
     }
 
     private void moveBallForward(double vectorX, double vectorY) {
@@ -86,13 +85,15 @@ public class PongController {
             if (boundsInParent.getMaxY() + ballSpeed < WINDOW_HEIGHT) {
                 ballNextY += ballSpeed;
             } else {
+                // deflect off the lower side
                 ballNextY += WINDOW_HEIGHT - boundsInParent.getMaxY();
             }
         } else {
             if (boundsInParent.getMinY() - ballSpeed > 0) {
                 ballNextY -= ballSpeed;
             } else {
-                ballNextY -= boundsInParent.getMinY() - ballSpeed;
+                // deflect off the upper side
+                ballNextY += ballSpeed;
             }
         }
     }
@@ -111,19 +112,8 @@ public class PongController {
         }
     }
 
-    private void checkBallWallCollision() {
-        Bounds ballBounds = ball.getBoundsInParent();
-        if (ballBounds.getMinX() <= 0
-                || ballBounds.getMaxX() >= WINDOW_WIDTH
-                || ballBounds.getMinY() <= 0
-                || ballBounds.getMaxY() >= WINDOW_HEIGHT) {
-            // ball hit one of the walls
-            deflectBallOfTheWall();
-            ball.setFill(Color.GREEN);
-        } else {
-            // ball flies peacefully
-            ball.setFill(Color.WHITE);
-        }
+    private boolean isScoreHit() {
+        return ball.getBoundsInParent().getMinX() <= 0 || ball.getBoundsInParent().getMaxX() >= WINDOW_WIDTH;
     }
 
     private boolean isRectangleHit() {
@@ -131,8 +121,7 @@ public class PongController {
                 || ball.getBoundsInParent().intersects(rightRectangle.getBoundsInParent());
     }
 
-    public void deflectBallOfTheWall() {
-        // fixme возможно, надо делать делать не +1, а ballSpeed, только учитвать расстояние до границы
+    public void scoreHit() {
         Bounds ballBounds = ball.getBoundsInParent();
         double minX = ballBounds.getMinX();
         double maxX = ballBounds.getMaxX();
@@ -146,26 +135,11 @@ public class PongController {
             player1Score++;
             scoreText1.setText(String.valueOf(player1Score));
             resetBall();
-        } else if (ball.getLayoutX() < ballNextX && (ballNextY + ball.getRadius()) >= WINDOW_HEIGHT) {
-            // ball hits bottom side of the screen moving from left to right
-            ballNextY -= 1;
-        } else if (ball.getLayoutX() > ballNextX && (ballNextY + ball.getRadius()) >= WINDOW_HEIGHT) {
-            // ball hits bottom side of the screen moving from right to left
-            ballNextY -= 1;
-        } else if (ball.getLayoutX() < ballNextX && (ballNextY - ball.getRadius()) <= 0) {
-            // ball hits upper side of the screen moving from left to right
-            ballNextY += 1;
-        } else if (ball.getLayoutX() > ballNextX && (ballNextY - ball.getRadius()) <= 0) {
-            // ball hits upper side of the screen moving from right to left
-            ballNextY += 1;
-        } else {
-            throw new IllegalStateException("Unexpected ball window collision");
         }
     }
 
+    // fixme даг, если мяч одновременно коснулся платформы и левого края окна ???
     private void deflectBallOfRectangle(double vectorY) {
-        // fixme будет баг, если отбиваем в углу, расстояние до края меньше, чем ballSpeed
-        ball.setFill(Color.GREEN);
         if (ball.getBoundsInParent().getMinX() <= leftRectangle.getBoundsInParent().getMaxX() && vectorY > 0) {
             ballNextX += ballSpeed;
             ballNextY += ballSpeed;
@@ -181,7 +155,6 @@ public class PongController {
         } else {
             throw new IllegalStateException("Unexpected ball rectangle collision");
         }
-        increaseBallSpeed();
     }
 
     private void resetBall() {
