@@ -10,13 +10,14 @@ import javafx.scene.text.Text;
 
 import java.util.Random;
 
+import static com.github.serenerd.hellojavafx.BallHelper.INITIAL_BALL_SPEED;
+import static com.github.serenerd.hellojavafx.BallHelper.increaseBallSpeed;
 import static com.github.serenerd.hellojavafx.KeyBoardHelper.handleRectangles;
 import static com.github.serenerd.hellojavafx.PongApplication.WINDOW_HEIGHT;
 import static com.github.serenerd.hellojavafx.PongApplication.WINDOW_WIDTH;
 
 public class PongController {
 
-    public static final double INITIAL_BALL_SPEED = 4d;
     @FXML
     private Rectangle leftRectangle;
     @FXML
@@ -34,7 +35,6 @@ public class PongController {
     private int player2Score = 0;
 
     private double ballSpeed = INITIAL_BALL_SPEED;
-    private static final double BALL_SPEED_LIMIT = 10d;
     private double ballNextX;
     private double ballNextY;
 
@@ -58,7 +58,7 @@ public class PongController {
         ball.setLayoutY(ballNextY);
         if (isRectangleHit()) {
             deflectBallOfRectangle(vectorY);
-            increaseBallSpeed();
+            ballSpeed = increaseBallSpeed(ballSpeed);
         } else if (isScoreHit()) {
             scoreHit();
         } else {
@@ -167,12 +167,6 @@ public class PongController {
         }
         ballSpeed = INITIAL_BALL_SPEED;
         defineBallInitialDirection();
-    }
-
-    private void increaseBallSpeed() {
-        if (ballSpeed != BALL_SPEED_LIMIT) {
-            ballSpeed += 0.5d;
-        }
     }
 
     public void handleKeyReleased(KeyEvent ignoredKey) {
