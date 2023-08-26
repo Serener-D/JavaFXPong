@@ -65,7 +65,6 @@ public class PongController {
         double vectorY = ballNextY - ball.getLayoutY();
         ball.setLayoutX(ballNextX);
         ball.setLayoutY(ballNextY);
-        isRectangleHit();
         if (!isRectangleHit()) {
             moveBallForward(vectorX, vectorY);
         } else {
@@ -139,6 +138,7 @@ public class PongController {
     }
 
     public void deflectBallOfTheWall() {
+        // fixme возможно, надо делать делать не +1, а ballSpeed, только учитвать расстояние до границы
         Bounds ballBounds = ball.getBoundsInParent();
         double minX = ballBounds.getMinX();
         double maxX = ballBounds.getMaxX();
@@ -170,19 +170,20 @@ public class PongController {
     }
 
     private void deflectBallOfRectangle(double vectorY) {
+        // fixme будет баг, если отбиваем в углу, расстояние до края меньше, чем ballSpeed
         ball.setFill(Color.GREEN);
         if (ball.getBoundsInParent().getMinX() <= leftRectangle.getBoundsInParent().getMaxX() && vectorY > 0) {
-            ballNextX += 1;
-            ballNextY += 1;
+            ballNextX += ballSpeed;
+            ballNextY += ballSpeed;
         } else if (ball.getBoundsInParent().getMinX() <= leftRectangle.getBoundsInParent().getMaxX() && vectorY < 0) {
-            ballNextX += 1;
-            ballNextY -= 1;
+            ballNextX += ballSpeed;
+            ballNextY -= ballSpeed;
         } else if (ball.getBoundsInParent().getMaxX() >= rightRectangle.getBoundsInParent().getMinX() && vectorY > 0) {
-            ballNextX -= 1;
-            ballNextY += 1;
+            ballNextX -= ballSpeed;
+            ballNextY += ballSpeed;
         } else if (ball.getBoundsInParent().getMaxX() >= rightRectangle.getBoundsInParent().getMinX() && vectorY < 0) {
-            ballNextX -= 1;
-            ballNextY -= 1;
+            ballNextX -= ballSpeed;
+            ballNextY -= ballSpeed;
         } else {
             throw new IllegalStateException("Unexpected ball rectangle collision");
         }
