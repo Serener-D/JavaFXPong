@@ -11,17 +11,15 @@ import javafx.scene.text.Text;
 
 import java.util.Random;
 
+import static com.github.serenerd.hellojavafx.KeyBoardHelper.handleRectangles;
 import static com.github.serenerd.hellojavafx.PongApplication.WINDOW_HEIGHT;
 import static com.github.serenerd.hellojavafx.PongApplication.WINDOW_WIDTH;
 
-// fixme сделай отдельный класс для контроля клавиатуры
 // fixme сделай отдельный класс для контроля мяча
 // fixme дичь, надо упростить все это
-// fixme сейчас есть баги. скорее всего, из-за неправильного рассчета перемещений, из-за хардкода +ballSpeed
 public class PongController {
 
-    private static final double RECTANGLE_SPEED = 8d;
-    private static final double INITIAL_BALL_SPEED = 4d;
+    public static final double INITIAL_BALL_SPEED = 4d;
     @FXML
     private Rectangle leftRectangle;
     @FXML
@@ -35,10 +33,6 @@ public class PongController {
 
     private Random random = new Random();
 
-    private boolean upPressed = false;
-    private boolean downPressed = false;
-    private boolean wPressed = false;
-    private boolean sPressed = false;
     private int player1Score = 0;
     private int player2Score = 0;
 
@@ -51,7 +45,7 @@ public class PongController {
         @Override
         public void handle(long now) {
             handleBall();
-            handleRectangles();
+            handleRectangles(rightRectangle, leftRectangle);
         }
     };
 
@@ -208,66 +202,11 @@ public class PongController {
         }
     }
 
-    // ДАЛЕЕ ИДУТ МЕТОДЫ ДЛЯ КОНТРОЛЯ ПЛАТФОРМ И КЛАВИАТУРЫ
-    //fixme если один игрок отпускает кнопку, то сбивается движение второго
-    private void handleRectangles() {
-        if (upPressed) {
-            handleUpKey();
-        } else if (downPressed) {
-            handleDownKey();
-        }
-        if (wPressed) {
-            handleWKey();
-        } else if (sPressed) {
-            handleSKey();
-        }
-    }
-
     public void handleKeyReleased(KeyEvent ignoredKey) {
-        upPressed = false;
-        downPressed = false;
-        wPressed = false;
-        sPressed = false;
+        KeyBoardHelper.handleKeyReleased();
     }
 
     public void handleKeyPressed(KeyEvent event) {
-        switch (event.getCode()) {
-            case UP -> upPressed = true;
-            case DOWN -> downPressed = true;
-            case W -> wPressed = true;
-            case S -> sPressed = true;
-        }
-    }
-
-    public void handleUpKey() {
-        if ((rightRectangle.getLayoutY() - RECTANGLE_SPEED) <= 0) {
-            rightRectangle.setLayoutY(0);
-        } else {
-            rightRectangle.setLayoutY(rightRectangle.getLayoutY() - RECTANGLE_SPEED);
-        }
-    }
-
-    public void handleDownKey() {
-        if ((rightRectangle.getLayoutY() + RECTANGLE_SPEED) >= (WINDOW_HEIGHT - rightRectangle.getHeight())) {
-            rightRectangle.setLayoutY(WINDOW_HEIGHT - rightRectangle.getHeight());
-        } else {
-            rightRectangle.setLayoutY(rightRectangle.getLayoutY() + RECTANGLE_SPEED);
-        }
-    }
-
-    public void handleWKey() {
-        if ((leftRectangle.getLayoutY() - RECTANGLE_SPEED) <= 0) {
-            leftRectangle.setLayoutY(0);
-        } else {
-            leftRectangle.setLayoutY(leftRectangle.getLayoutY() - RECTANGLE_SPEED);
-        }
-    }
-
-    public void handleSKey() {
-        if ((leftRectangle.getLayoutY() + RECTANGLE_SPEED) >= (WINDOW_HEIGHT - leftRectangle.getHeight())) {
-            leftRectangle.setLayoutY(WINDOW_HEIGHT - leftRectangle.getHeight());
-        } else {
-            leftRectangle.setLayoutY(leftRectangle.getLayoutY() + RECTANGLE_SPEED);
-        }
+        KeyBoardHelper.handleKeyPressed(event);
     }
 }
