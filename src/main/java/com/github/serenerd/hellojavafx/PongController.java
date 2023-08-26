@@ -61,15 +61,22 @@ public class PongController {
     }
 
     private void handleBall() {
-        checkBallCollision();
-        double diffX = ballNextX - ball.getLayoutX();
-        double diffY = ballNextY - ball.getLayoutY();
+        double vectorX = ballNextX - ball.getLayoutX();
+        double vectorY = ballNextY - ball.getLayoutY();
         ball.setLayoutX(ballNextX);
         ball.setLayoutY(ballNextY);
-        // fixme после сета новых значений можно сразу чекать коллизию. Будет ветвление
-//        checkBallCollision();
+        isRectangleHit();
+        if (!isRectangleHit()) {
+            moveBallForward(vectorX, vectorY);
+        } else {
+            deflectBallOfRectangle(vectorY);
+        }
+        checkBallWallCollision();
+    }
+
+    private void moveBallForward(double vectorX, double vectorY) {
         Bounds boundsInParent = ball.getBoundsInParent();
-        if (diffX > 0) {
+        if (vectorX > 0) {
             if (boundsInParent.getMaxX() + ballSpeed < WINDOW_WIDTH) {
                 ballNextX += ballSpeed;
             } else {
@@ -82,7 +89,7 @@ public class PongController {
                 ballNextX -= ballSpeed - boundsInParent.getMinX();
             }
         }
-        if (diffY > 0) {
+        if (vectorY > 0) {
             if (boundsInParent.getMaxY() + ballSpeed < WINDOW_HEIGHT) {
                 ballNextY += ballSpeed;
             } else {
@@ -95,8 +102,6 @@ public class PongController {
                 ballNextY -= boundsInParent.getMinY() - ballSpeed;
             }
         }
-        // fixme бага, если шар касается края прямоугольника
-//        checkBallCollision();
     }
 
     private void defineBallInitialDirection() {
@@ -113,7 +118,7 @@ public class PongController {
         }
     }
 
-    private void checkBallCollision() {
+    private void checkBallWallCollision() {
         Bounds ballBounds = ball.getBoundsInParent();
         if (ballBounds.getMinX() <= 0
                 || ballBounds.getMaxX() >= WINDOW_WIDTH
@@ -122,15 +127,15 @@ public class PongController {
             // ball hit one of the walls
             deflectBallOfTheWall();
             ball.setFill(Color.GREEN);
-        } else if (ball.getBoundsInParent().intersects(leftRectangle.getBoundsInParent())
-                || ball.getBoundsInParent().intersects(rightRectangle.getBoundsInParent())) {
-            // ball hit rectangles
-            deflectBallOfRectangle();
-            ball.setFill(Color.GREEN);
         } else {
             // ball flies peacefully
             ball.setFill(Color.WHITE);
         }
+    }
+
+    private boolean isRectangleHit() {
+        return ball.getBoundsInParent().intersects(leftRectangle.getBoundsInParent())
+                || ball.getBoundsInParent().intersects(rightRectangle.getBoundsInParent());
     }
 
     public void deflectBallOfTheWall() {
@@ -164,14 +169,20 @@ public class PongController {
         }
     }
 
-    // fixme переделать под умное определение, части плафтормы, в которую попал мяч
-    private void deflectBallOfRectangle() {
-        Bounds ballBounds = ball.getBoundsInParent();
-        Bounds triangleBounds = rightRectangle.getBoundsInParent();
-        if (ball.getBoundsInParent().getMinX() <= leftRectangle.getBoundsInParent().getMaxX()) {
+    private void deflectBallOfRectangle(double vectorY) {
+        ball.setFill(Color.GREEN);
+        if (ball.getBoundsInParent().getMinX() <= leftRectangle.getBoundsInParent().getMaxX() && vectorY > 0) {
             ballNextX += 1;
-        } else if (ball.getBoundsInParent().getMaxX() >= rightRectangle.getBoundsInParent().getMinX()) {
+            ballNextY += 1;
+        } else if (ball.getBoundsInParent().getMinX() <= leftRectangle.getBoundsInParent().getMaxX() && vectorY < 0) {
+            ballNextX += 1;
+            ballNextY -= 1;
+        } else if (ball.getBoundsInParent().getMaxX() >= rightRectangle.getBoundsInParent().getMinX() && vectorY > 0) {
             ballNextX -= 1;
+            ballNextY += 1;
+        } else if (ball.getBoundsInParent().getMaxX() >= rightRectangle.getBoundsInParent().getMinX() && vectorY < 0) {
+            ballNextX -= 1;
+            ballNextY -= 1;
         } else {
             throw new IllegalStateException("Unexpected ball rectangle collision");
         }
