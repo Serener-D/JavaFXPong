@@ -106,33 +106,25 @@ public class PongController {
 
         private void deflectBallOfRectangle() {
             double ballY = ball.getBoundsInParent().getCenterY();
-
             if (ball.getBoundsInParent().intersects(leftRectangle.getBoundsInParent())) {
-                double rectangleMinY = leftRectangle.getBoundsInParent().getMinY();
                 ballNextX += ballSpeed;
-                if (ballY < rectangleMinY + 40) {
-                    // upper part of rectangle
-                    ballNextY -= ballSpeed;
-                } else if (ballY < rectangleMinY + 50) {
-                    ballNextY = ballY;
-                    // middle part of rectangle
-                } else {
-                    ballNextY += ballSpeed;
-                    // lower part of rectangle
-                }
+                calculateRectangleHitYDirection(ballY, leftRectangle.getBoundsInParent().getMinY());
             } else if (ball.getBoundsInParent().intersects(rightRectangle.getBoundsInParent())) {
-                double rectangleMinY = rightRectangle.getBoundsInParent().getMinY();
                 ballNextX -= ballSpeed;
-                if (ballY < rectangleMinY + 40) {
-                    // upper part of rectangle
-                    ballNextY -= ballSpeed;
-                } else if (ballY < rectangleMinY + 50) {
-                    // middle part of rectangle
-                    ballNextY = ballY;
-                } else {
-                    // lower part of rectangle
-                    ballNextY += ballSpeed;
-                }
+                calculateRectangleHitYDirection(ballY, rightRectangle.getBoundsInParent().getMinY());
+            }
+        }
+
+        private void calculateRectangleHitYDirection(double ballY, double rectangleMinY) {
+            if (ballY < rectangleMinY + 40) {
+                // upper part of rectangle
+                ballNextY -= ballSpeed;
+            } else if (ballY < rectangleMinY + 50) {
+                // middle part of rectangle
+                ballNextY = ballY;
+            } else {
+                // lower part of rectangle
+                ballNextY += ballSpeed;
             }
         }
 
