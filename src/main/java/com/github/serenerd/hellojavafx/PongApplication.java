@@ -9,7 +9,6 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
-// todo добавить звуки
 public class PongApplication extends Application {
 
     public static final double WINDOW_WIDTH = 700d;

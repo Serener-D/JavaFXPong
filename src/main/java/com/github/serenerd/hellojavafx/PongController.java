@@ -10,8 +10,6 @@ import javafx.scene.text.Text;
 
 import java.util.Random;
 
-import static com.github.serenerd.hellojavafx.BallHelper.INITIAL_BALL_SPEED;
-import static com.github.serenerd.hellojavafx.BallHelper.increaseBallSpeed;
 import static com.github.serenerd.hellojavafx.KeyBoardHelper.handleRectangles;
 import static com.github.serenerd.hellojavafx.PongApplication.WINDOW_HEIGHT;
 import static com.github.serenerd.hellojavafx.PongApplication.WINDOW_WIDTH;
@@ -34,9 +32,16 @@ public class PongController {
     private int player1Score = 0;
     private int player2Score = 0;
 
+    public static final double INITIAL_BALL_SPEED = 4d;
+    private static final double BALL_SPEED_LIMIT = 10d;
     private double ballSpeed = INITIAL_BALL_SPEED;
     private double ballNextX;
     private double ballNextY;
+
+    public void initialize() {
+        defineBallInitialDirection();
+        timer.start();
+    }
 
     private final AnimationTimer timer = new AnimationTimer() {
         @Override
@@ -44,59 +49,93 @@ public class PongController {
             handleBall();
             handleRectangles(rightRectangle, leftRectangle);
         }
-    };
 
-    public void initialize() {
-        defineBallInitialDirection();
-        timer.start();
-    }
-
-    private void handleBall() {
-        double vectorX = ballNextX - ball.getLayoutX();
-        double vectorY = ballNextY - ball.getLayoutY();
-        ball.setLayoutX(ballNextX);
-        ball.setLayoutY(ballNextY);
-        if (isRectangleHit()) {
-            deflectBallOfRectangle(vectorY);
-            ballSpeed = increaseBallSpeed(ballSpeed);
-        } else if (isScoreHit()) {
-            scoreHit();
-        } else {
-            moveBallForward(vectorX, vectorY);
+        private void handleBall() {
+            double vectorX = ballNextX - ball.getLayoutX();
+            double vectorY = ballNextY - ball.getLayoutY();
+            ball.setLayoutX(ballNextX);
+            ball.setLayoutY(ballNextY);
+            if (isRectangleHit()) {
+                deflectBallOfRectangle(vectorY);
+                increaseBallSpeed();
+            } else if (isScoreHit()) {
+                scoreHit();
+                resetBall();
+            } else {
+                moveBallForward(vectorX, vectorY);
+            }
         }
-    }
 
-    private void moveBallForward(double vectorX, double vectorY) {
-        Bounds boundsInParent = ball.getBoundsInParent();
-        if (vectorX > 0) {
-            if (boundsInParent.getMaxX() + ballSpeed < WINDOW_WIDTH) {
+        private void increaseBallSpeed() {
+            if (ballSpeed != BALL_SPEED_LIMIT) {
+                ballSpeed += 0.5d;
+            }
+        }
+
+        private void moveBallForward(double vectorX, double vectorY) {
+            Bounds boundsInParent = ball.getBoundsInParent();
+            if (vectorX > 0) {
+                if (boundsInParent.getMaxX() + ballSpeed < WINDOW_WIDTH) {
+                    ballNextX += ballSpeed;
+                } else {
+                    ballNextX += WINDOW_WIDTH - boundsInParent.getMaxX();
+                }
+            } else {
+                if (boundsInParent.getMinX() - ballSpeed > 0) {
+                    ballNextX -= ballSpeed;
+                } else {
+                    ballNextX -= boundsInParent.getMinX();
+                }
+            }
+            if (vectorY > 0) {
+                if (boundsInParent.getMaxY() + ballSpeed < WINDOW_HEIGHT) {
+                    ballNextY += ballSpeed;
+                } else {
+                    // deflect off the lower side
+                    ballNextY += WINDOW_HEIGHT - boundsInParent.getMaxY();
+                }
+            } else {
+                if (boundsInParent.getMinY() - ballSpeed > 0) {
+                    ballNextY -= ballSpeed;
+                } else {
+                    // deflect off the upper side
+                    ballNextY += ballSpeed;
+                }
+            }
+        }
+
+        private void deflectBallOfRectangle(double vectorY) {
+            if (ball.getBoundsInParent().getMinX() <= leftRectangle.getBoundsInParent().getMaxX() && vectorY > 0) {
                 ballNextX += ballSpeed;
-            } else {
-                ballNextX += WINDOW_WIDTH - boundsInParent.getMaxX();
-            }
-        } else {
-            if (boundsInParent.getMinX() - ballSpeed > 0) {
-                ballNextX -= ballSpeed;
-            } else {
-                ballNextX -= boundsInParent.getMinX();
-            }
-        }
-        if (vectorY > 0) {
-            if (boundsInParent.getMaxY() + ballSpeed < WINDOW_HEIGHT) {
                 ballNextY += ballSpeed;
-            } else {
-                // deflect off the lower side
-                ballNextY += WINDOW_HEIGHT - boundsInParent.getMaxY();
-            }
-        } else {
-            if (boundsInParent.getMinY() - ballSpeed > 0) {
+            } else if (ball.getBoundsInParent().getMinX() <= leftRectangle.getBoundsInParent().getMaxX() && vectorY < 0) {
+                ballNextX += ballSpeed;
                 ballNextY -= ballSpeed;
-            } else {
-                // deflect off the upper side
+            } else if (ball.getBoundsInParent().getMaxX() >= rightRectangle.getBoundsInParent().getMinX() && vectorY > 0) {
+                ballNextX -= ballSpeed;
                 ballNextY += ballSpeed;
+            } else if (ball.getBoundsInParent().getMaxX() >= rightRectangle.getBoundsInParent().getMinX() && vectorY < 0) {
+                ballNextX -= ballSpeed;
+                ballNextY -= ballSpeed;
             }
         }
-    }
+
+        private boolean isScoreHit() {
+            return ball.getBoundsInParent().getMinX() <= 0 || ball.getBoundsInParent().getMaxX() >= WINDOW_WIDTH;
+        }
+
+        private boolean isRectangleHit() {
+            return ball.getBoundsInParent().intersects(leftRectangle.getBoundsInParent())
+                    || ball.getBoundsInParent().intersects(rightRectangle.getBoundsInParent());
+        }
+
+        private void resetBall() {
+            ball.setLayoutX(WINDOW_WIDTH / 2);
+            ball.setLayoutY(WINDOW_HEIGHT / 2);
+            ballSpeed = INITIAL_BALL_SPEED;
+            defineBallInitialDirection();
+        }
+    };
 
     private void defineBallInitialDirection() {
         random.nextInt(2);
@@ -112,15 +151,6 @@ public class PongController {
         }
     }
 
-    private boolean isScoreHit() {
-        return ball.getBoundsInParent().getMinX() <= 0 || ball.getBoundsInParent().getMaxX() >= WINDOW_WIDTH;
-    }
-
-    private boolean isRectangleHit() {
-        return ball.getBoundsInParent().intersects(leftRectangle.getBoundsInParent())
-                || ball.getBoundsInParent().intersects(rightRectangle.getBoundsInParent());
-    }
-
     public void scoreHit() {
         Bounds ballBounds = ball.getBoundsInParent();
         double minX = ballBounds.getMinX();
@@ -129,38 +159,11 @@ public class PongController {
             // ball hits left side of the screen
             player2Score++;
             scoreText2.setText(String.valueOf(player2Score));
-            resetBall();
         } else if (maxX == WINDOW_WIDTH) {
             // ball hits right side of the screen
             player1Score++;
             scoreText1.setText(String.valueOf(player1Score));
-            resetBall();
         }
-    }
-
-    private void deflectBallOfRectangle(double vectorY) {
-        if (ball.getBoundsInParent().getMinX() <= leftRectangle.getBoundsInParent().getMaxX() && vectorY > 0) {
-            ballNextX += ballSpeed;
-            ballNextY += ballSpeed;
-        } else if (ball.getBoundsInParent().getMinX() <= leftRectangle.getBoundsInParent().getMaxX() && vectorY < 0) {
-            ballNextX += ballSpeed;
-            ballNextY -= ballSpeed;
-        } else if (ball.getBoundsInParent().getMaxX() >= rightRectangle.getBoundsInParent().getMinX() && vectorY > 0) {
-            ballNextX -= ballSpeed;
-            ballNextY += ballSpeed;
-        } else if (ball.getBoundsInParent().getMaxX() >= rightRectangle.getBoundsInParent().getMinX() && vectorY < 0) {
-            ballNextX -= ballSpeed;
-            ballNextY -= ballSpeed;
-        } else {
-            throw new IllegalStateException("Unexpected ball rectangle collision");
-        }
-    }
-
-    private void resetBall() {
-        ball.setLayoutX(WINDOW_WIDTH / 2);
-        ball.setLayoutY(WINDOW_HEIGHT / 2);
-        ballSpeed = INITIAL_BALL_SPEED;
-        defineBallInitialDirection();
     }
 
     public void handleKeyReleased(KeyEvent key) {
