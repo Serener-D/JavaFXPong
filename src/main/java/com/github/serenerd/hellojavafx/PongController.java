@@ -10,7 +10,7 @@ import javafx.scene.text.Text;
 
 import java.util.Random;
 
-import static com.github.serenerd.hellojavafx.KeyBoardHelper.handleRectangles;
+import static com.github.serenerd.hellojavafx.KeyBoardHandler.handleRectangles;
 import static com.github.serenerd.hellojavafx.PongApplication.WINDOW_HEIGHT;
 import static com.github.serenerd.hellojavafx.PongApplication.WINDOW_WIDTH;
 
@@ -56,7 +56,7 @@ public class PongController {
             ball.setLayoutX(ballNextX);
             ball.setLayoutY(ballNextY);
             if (isRectangleHit()) {
-                deflectBallOfRectangle(vectorY);
+                deflectBallOfRectangle();
                 increaseBallSpeed();
             } else if (isScoreHit()) {
                 scoreHit();
@@ -92,9 +92,9 @@ public class PongController {
                     ballNextY += ballSpeed;
                 } else {
                     // deflect off the lower side
-                    ballNextY += WINDOW_HEIGHT - boundsInParent.getMaxY();
+                    ballNextY -= ballSpeed;
                 }
-            } else {
+            } else if (vectorY < 0) {
                 if (boundsInParent.getMinY() - ballSpeed > 0) {
                     ballNextY -= ballSpeed;
                 } else {
@@ -104,19 +104,35 @@ public class PongController {
             }
         }
 
-        private void deflectBallOfRectangle(double vectorY) {
-            if (ball.getBoundsInParent().getMinX() <= leftRectangle.getBoundsInParent().getMaxX() && vectorY > 0) {
+        private void deflectBallOfRectangle() {
+            double ballY = ball.getBoundsInParent().getCenterY();
+
+            if (ball.getBoundsInParent().intersects(leftRectangle.getBoundsInParent())) {
+                double rectangleMinY = leftRectangle.getBoundsInParent().getMinY();
                 ballNextX += ballSpeed;
-                ballNextY += ballSpeed;
-            } else if (ball.getBoundsInParent().getMinX() <= leftRectangle.getBoundsInParent().getMaxX() && vectorY < 0) {
-                ballNextX += ballSpeed;
-                ballNextY -= ballSpeed;
-            } else if (ball.getBoundsInParent().getMaxX() >= rightRectangle.getBoundsInParent().getMinX() && vectorY > 0) {
+                if (ballY < rectangleMinY + 40) {
+                    // upper part of rectangle
+                    ballNextY -= ballSpeed;
+                } else if (ballY < rectangleMinY + 50) {
+                    ballNextY = ballY;
+                    // middle part of rectangle
+                } else {
+                    ballNextY += ballSpeed;
+                    // lower part of rectangle
+                }
+            } else if (ball.getBoundsInParent().intersects(rightRectangle.getBoundsInParent())) {
+                double rectangleMinY = rightRectangle.getBoundsInParent().getMinY();
                 ballNextX -= ballSpeed;
-                ballNextY += ballSpeed;
-            } else if (ball.getBoundsInParent().getMaxX() >= rightRectangle.getBoundsInParent().getMinX() && vectorY < 0) {
-                ballNextX -= ballSpeed;
-                ballNextY -= ballSpeed;
+                if (ballY < rectangleMinY + 40) {
+                    // upper part of rectangle
+                    ballNextY -= ballSpeed;
+                } else if (ballY < rectangleMinY + 50) {
+                    // middle part of rectangle
+                    ballNextY = ballY;
+                } else {
+                    // lower part of rectangle
+                    ballNextY += ballSpeed;
+                }
             }
         }
 
@@ -167,10 +183,10 @@ public class PongController {
     }
 
     public void handleKeyReleased(KeyEvent key) {
-        KeyBoardHelper.handleKeyReleased(key);
+        KeyBoardHandler.handleKeyReleased(key);
     }
 
     public void handleKeyPressed(KeyEvent key) {
-        KeyBoardHelper.handleKeyPressed(key);
+        KeyBoardHandler.handleKeyPressed(key);
     }
 }

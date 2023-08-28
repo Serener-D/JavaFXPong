@@ -8,7 +8,7 @@ import javafx.scene.shape.Rectangle;
 
 import static com.github.serenerd.hellojavafx.PongApplication.WINDOW_HEIGHT;
 
-public class KeyBoardHelper {
+public class KeyBoardHandler {
 
     private static final double RECTANGLE_SPEED = 8d;
     private static final BooleanProperty wPressed = new SimpleBooleanProperty();
