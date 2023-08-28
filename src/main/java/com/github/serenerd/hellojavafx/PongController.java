@@ -10,6 +10,7 @@ import javafx.scene.text.Text;
 
 import java.util.Random;
 
+import static com.github.serenerd.hellojavafx.AudioHandler.playAudio;
 import static com.github.serenerd.hellojavafx.KeyBoardHandler.handleRectangles;
 import static com.github.serenerd.hellojavafx.PongApplication.WINDOW_HEIGHT;
 import static com.github.serenerd.hellojavafx.PongApplication.WINDOW_WIDTH;
@@ -105,6 +106,7 @@ public class PongController {
         }
 
         private void deflectBallOfRectangle() {
+            playAudio();
             double ballY = ball.getBoundsInParent().getCenterY();
             if (ball.getBoundsInParent().intersects(leftRectangle.getBoundsInParent())) {
                 ballNextX += ballSpeed;
