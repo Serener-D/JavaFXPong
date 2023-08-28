@@ -1,46 +1,63 @@
 package com.github.serenerd.hellojavafx;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.shape.Rectangle;
 
 import static com.github.serenerd.hellojavafx.PongApplication.WINDOW_HEIGHT;
 
-//fixme если один игрок отпускает кнопку, то сбивается движение второго
 public class KeyBoardHelper {
 
     private static final double RECTANGLE_SPEED = 8d;
+    private static final BooleanProperty wPressed = new SimpleBooleanProperty();
+    private static final BooleanProperty sPressed = new SimpleBooleanProperty();
+    private static final BooleanProperty upPressed = new SimpleBooleanProperty();
+    private static final BooleanProperty downPressed = new SimpleBooleanProperty();
 
-    private static boolean upPressed = false;
-    private static boolean downPressed = false;
-    private static boolean wPressed = false;
-    private static boolean sPressed = false;
-
-    public static void handleKeyPressed(KeyEvent event) {
-        switch (event.getCode()) {
-            case UP -> upPressed = true;
-            case DOWN -> downPressed = true;
-            case W -> wPressed = true;
-            case S -> sPressed = true;
+    public static void handleKeyPressed(KeyEvent key) {
+        if (key.getCode() == KeyCode.W) {
+            wPressed.set(true);
+        }
+        if (key.getCode() == KeyCode.UP) {
+            upPressed.set(true);
+        }
+        if (key.getCode() == KeyCode.S) {
+            sPressed.set(true);
+        }
+        if (key.getCode() == KeyCode.DOWN) {
+            downPressed.set(true);
         }
     }
 
-    public static void handleKeyReleased() {
-        upPressed = false;
-        downPressed = false;
-        wPressed = false;
-        sPressed = false;
+    public static void handleKeyReleased(KeyEvent key) {
+        if (key.getCode() == KeyCode.W) {
+            wPressed.set(false);
+        }
+        if (key.getCode() == KeyCode.UP) {
+            upPressed.set(false);
+        }
+        if (key.getCode() == KeyCode.S) {
+            sPressed.set(false);
+        }
+        if (key.getCode() == KeyCode.DOWN) {
+            downPressed.set(false);
+        }
     }
 
     public static void handleRectangles(Rectangle rightRectangle, Rectangle leftRectangle) {
-        if (upPressed) {
-            KeyBoardHelper.handleUpKey(rightRectangle);
-        } else if (downPressed) {
-            KeyBoardHelper.handleDownKey(rightRectangle);
+        if (wPressed.get()) {
+            handleWKey(leftRectangle);
         }
-        if (wPressed) {
-            KeyBoardHelper.handleWKey(leftRectangle);
-        } else if (sPressed) {
-            KeyBoardHelper.handleSKey(leftRectangle);
+        if (sPressed.get()) {
+            handleSKey(leftRectangle);
+        }
+        if (upPressed.get()) {
+            handleUpKey(rightRectangle);
+        }
+        if (downPressed.get()) {
+            handleDownKey(rightRectangle);
         }
     }
 

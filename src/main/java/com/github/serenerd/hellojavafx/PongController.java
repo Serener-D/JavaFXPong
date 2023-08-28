@@ -16,7 +16,6 @@ import static com.github.serenerd.hellojavafx.KeyBoardHelper.handleRectangles;
 import static com.github.serenerd.hellojavafx.PongApplication.WINDOW_HEIGHT;
 import static com.github.serenerd.hellojavafx.PongApplication.WINDOW_WIDTH;
 
-// todo детектить, в какую часть платформы попал мяч
 public class PongController {
 
     @FXML
@@ -164,11 +163,11 @@ public class PongController {
         defineBallInitialDirection();
     }
 
-    public void handleKeyReleased(KeyEvent ignoredKey) {
-        KeyBoardHelper.handleKeyReleased();
+    public void handleKeyReleased(KeyEvent key) {
+        KeyBoardHelper.handleKeyReleased(key);
     }
 
-    public void handleKeyPressed(KeyEvent event) {
-        KeyBoardHelper.handleKeyPressed(event);
+    public void handleKeyPressed(KeyEvent key) {
+        KeyBoardHelper.handleKeyPressed(key);
     }
 }
