@@ -1,7 +1,5 @@
 package com.github.serenerd.javafx.pong;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.shape.Rectangle;
@@ -9,52 +7,52 @@ import javafx.scene.shape.Rectangle;
 public class KeyBoardHandler {
 
     private static final double RECTANGLE_SPEED = 8d;
-    private static final BooleanProperty wPressed = new SimpleBooleanProperty();
-    private static final BooleanProperty sPressed = new SimpleBooleanProperty();
-    private static final BooleanProperty upPressed = new SimpleBooleanProperty();
-    private static final BooleanProperty downPressed = new SimpleBooleanProperty();
+    private static boolean wPressed;
+    private static boolean sPressed;
+    private static boolean upPressed;
+    private static boolean downPressed;
 
     public static void handleKeyPressed(KeyEvent key) {
         if (key.getCode() == KeyCode.W) {
-            wPressed.set(true);
+            wPressed = true;
         }
         if (key.getCode() == KeyCode.UP) {
-            upPressed.set(true);
+            upPressed = true;
         }
         if (key.getCode() == KeyCode.S) {
-            sPressed.set(true);
+            sPressed = true;
         }
         if (key.getCode() == KeyCode.DOWN) {
-            downPressed.set(true);
+            downPressed = true;
         }
     }
 
     public static void handleKeyReleased(KeyEvent key) {
         if (key.getCode() == KeyCode.W) {
-            wPressed.set(false);
+            wPressed = false;
         }
         if (key.getCode() == KeyCode.UP) {
-            upPressed.set(false);
+            upPressed = false;
         }
         if (key.getCode() == KeyCode.S) {
-            sPressed.set(false);
+            sPressed = false;
         }
         if (key.getCode() == KeyCode.DOWN) {
-            downPressed.set(false);
+            downPressed = false;
         }
     }
 
     public static void handleRectangles(Rectangle rightRectangle, Rectangle leftRectangle) {
-        if (wPressed.get()) {
+        if (wPressed) {
             handleWKey(leftRectangle);
         }
-        if (sPressed.get()) {
+        if (sPressed) {
             handleSKey(leftRectangle);
         }
-        if (upPressed.get()) {
+        if (upPressed) {
             handleUpKey(rightRectangle);
         }
-        if (downPressed.get()) {
+        if (downPressed) {
             handleDownKey(rightRectangle);
         }
     }
