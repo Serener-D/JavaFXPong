@@ -25,8 +25,8 @@ tasks.withType(JavaCompile) {
 }
 
 application {
-    mainModule = 'com.github.serenerd.hellojavafx'
-    mainClass = 'com.github.serenerd.hellojavafx.HelloApplication'
+    mainModule = 'com.github.serenerd.javafx.pong'
+    mainClass = 'com.github.serenerd.javafx.pong.PongApplication'
 }
 
 javafx {

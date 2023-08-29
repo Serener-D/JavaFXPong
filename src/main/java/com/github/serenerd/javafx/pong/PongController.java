@@ -1,4 +1,4 @@
-package com.github.serenerd.hellojavafx;
+package com.github.serenerd.javafx.pong;
 
 import javafx.animation.AnimationTimer;
 import javafx.fxml.FXML;
@@ -10,10 +10,7 @@ import javafx.scene.text.Text;
 
 import java.util.Random;
 
-import static com.github.serenerd.hellojavafx.AudioHandler.playAudio;
-import static com.github.serenerd.hellojavafx.KeyBoardHandler.handleRectangles;
-import static com.github.serenerd.hellojavafx.PongApplication.WINDOW_HEIGHT;
-import static com.github.serenerd.hellojavafx.PongApplication.WINDOW_WIDTH;
+import static com.github.serenerd.javafx.pong.AudioHandler.playAudio;
 
 public class PongController {
 
@@ -48,7 +45,7 @@ public class PongController {
         @Override
         public void handle(long now) {
             handleBall();
-            handleRectangles(rightRectangle, leftRectangle);
+            KeyBoardHandler.handleRectangles(rightRectangle, leftRectangle);
         }
 
         private void handleBall() {
@@ -76,10 +73,10 @@ public class PongController {
         private void moveBallForward(double vectorX, double vectorY) {
             Bounds boundsInParent = ball.getBoundsInParent();
             if (vectorX > 0) {
-                if (boundsInParent.getMaxX() + ballSpeed < WINDOW_WIDTH) {
+                if (boundsInParent.getMaxX() + ballSpeed < PongApplication.WINDOW_WIDTH) {
                     ballNextX += ballSpeed;
                 } else {
-                    ballNextX += WINDOW_WIDTH - boundsInParent.getMaxX();
+                    ballNextX += PongApplication.WINDOW_WIDTH - boundsInParent.getMaxX();
                 }
             } else {
                 if (boundsInParent.getMinX() - ballSpeed > 0) {
@@ -89,7 +86,7 @@ public class PongController {
                 }
             }
             if (vectorY > 0) {
-                if (boundsInParent.getMaxY() + ballSpeed < WINDOW_HEIGHT) {
+                if (boundsInParent.getMaxY() + ballSpeed < PongApplication.WINDOW_HEIGHT) {
                     ballNextY += ballSpeed;
                 } else {
                     // deflect off the lower side
@@ -131,7 +128,7 @@ public class PongController {
         }
 
         private boolean isScoreHit() {
-            return ball.getBoundsInParent().getMinX() <= 0 || ball.getBoundsInParent().getMaxX() >= WINDOW_WIDTH;
+            return ball.getBoundsInParent().getMinX() <= 0 || ball.getBoundsInParent().getMaxX() >= PongApplication.WINDOW_WIDTH;
         }
 
         private boolean isRectangleHit() {
@@ -140,8 +137,8 @@ public class PongController {
         }
 
         private void resetBall() {
-            ball.setLayoutX(WINDOW_WIDTH / 2);
-            ball.setLayoutY(WINDOW_HEIGHT / 2);
+            ball.setLayoutX(PongApplication.WINDOW_WIDTH / 2);
+            ball.setLayoutY(PongApplication.WINDOW_HEIGHT / 2);
             ballSpeed = INITIAL_BALL_SPEED;
             defineBallInitialDirection();
         }
@@ -169,7 +166,7 @@ public class PongController {
             // ball hits left side of the screen
             player2Score++;
             scoreText2.setText(String.valueOf(player2Score));
-        } else if (maxX == WINDOW_WIDTH) {
+        } else if (maxX == PongApplication.WINDOW_WIDTH) {
             // ball hits right side of the screen
             player1Score++;
             scoreText1.setText(String.valueOf(player1Score));

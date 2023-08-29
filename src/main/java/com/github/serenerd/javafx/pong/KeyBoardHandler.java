@@ -1,12 +1,10 @@
-package com.github.serenerd.hellojavafx;
+package com.github.serenerd.javafx.pong;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.shape.Rectangle;
-
-import static com.github.serenerd.hellojavafx.PongApplication.WINDOW_HEIGHT;
 
 public class KeyBoardHandler {
 
@@ -70,8 +68,8 @@ public class KeyBoardHandler {
     }
 
     public static void handleDownKey(Rectangle rightRectangle) {
-        if ((rightRectangle.getLayoutY() + RECTANGLE_SPEED) >= (WINDOW_HEIGHT - rightRectangle.getHeight())) {
-            rightRectangle.setLayoutY(WINDOW_HEIGHT - rightRectangle.getHeight());
+        if ((rightRectangle.getLayoutY() + RECTANGLE_SPEED) >= (PongApplication.WINDOW_HEIGHT - rightRectangle.getHeight())) {
+            rightRectangle.setLayoutY(PongApplication.WINDOW_HEIGHT - rightRectangle.getHeight());
         } else {
             rightRectangle.setLayoutY(rightRectangle.getLayoutY() + RECTANGLE_SPEED);
         }
@@ -86,8 +84,8 @@ public class KeyBoardHandler {
     }
 
     public static void handleSKey(Rectangle leftRectangle) {
-        if ((leftRectangle.getLayoutY() + RECTANGLE_SPEED) >= (WINDOW_HEIGHT - leftRectangle.getHeight())) {
-            leftRectangle.setLayoutY(WINDOW_HEIGHT - leftRectangle.getHeight());
+        if ((leftRectangle.getLayoutY() + RECTANGLE_SPEED) >= (PongApplication.WINDOW_HEIGHT - leftRectangle.getHeight())) {
+            leftRectangle.setLayoutY(PongApplication.WINDOW_HEIGHT - leftRectangle.getHeight());
         } else {
             leftRectangle.setLayoutY(leftRectangle.getLayoutY() + RECTANGLE_SPEED);
         }

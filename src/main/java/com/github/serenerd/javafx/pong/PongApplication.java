@@ -1,4 +1,4 @@
-package com.github.serenerd.hellojavafx;
+package com.github.serenerd.javafx.pong;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
