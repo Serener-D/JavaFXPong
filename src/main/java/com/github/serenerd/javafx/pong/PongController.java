@@ -30,7 +30,7 @@ public class PongController {
     private int player1Score = 0;
     private int player2Score = 0;
 
-    public static final double INITIAL_BALL_SPEED = 4d;
+    private static final double INITIAL_BALL_SPEED = 4d;
     private static final double BALL_SPEED_LIMIT = 10d;
     private double ballSpeed = INITIAL_BALL_SPEED;
     private double ballNextX;
